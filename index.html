@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mili 💘</title>
+<!-- Fuente legible para los mensajes finales -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body {
+    margin:0;
+    height:100vh;
+    background: linear-gradient(135deg,#ff758c,#ff7eb3);
+    font-family: Arial, Helvetica, sans-serif;
+    overflow:hidden;
+    text-align:center;
+    color:white;
+}
+.container{
+    position:relative;
+    top:50%;
+    transform:translateY(-50%);
+    animation:fadeIn 2s ease-in-out;
+    padding: 0 15px;
+}
+h1{font-size:6vw; margin:10px;} 
+p{font-size:4vw; margin:10px;}
+button{
+    padding:3vw 6vw;
+    font-size:4vw;
+    border:none;
+    border-radius:40px;
+    background:white;
+    color:#ff4f81;
+    cursor:pointer;
+    position:relative;
+    transition:0.3s;
+}
+button:hover{transform:scale(1.1);}
+img.main-img{
+    width:50vw;
+    max-width:250px;
+    border-radius:20px;
+    margin:20px auto;
+    box-shadow:0 0 20px rgba(255,255,255,.6);
+    animation:float 3s ease-in-out infinite;
+    display:block;
+}
+img.hello-kitty{
+    width:40vw;
+    max-width:200px;
+    border-radius:15px;
+    margin-top:15px;
+    display:block;
+    margin-left:auto;
+    margin-right:auto;
+    animation:fadeIn 2s ease-in-out;
+}
+.hidden{display:none;}
+#noBtn{position:absolute;}
+.heart, .balloon{
+    position:absolute;
+    bottom:-20px;
+    font-size:6vw;
+    max-font-size:30px;
+    animation:floatUp 6s linear infinite;
+}
+@keyframes floatUp{
+    0%{transform:translateY(0);opacity:1;}
+    100%{transform:translateY(-110vh);opacity:0;}
+}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+canvas{position:fixed;top:0;left:0;pointer-events:none;z-index:0;}
+#countdown{font-size:12vw;margin:5vw;}
+#secretMsg{
+    font-size:4vw;
+    margin-top:5vw;
+    line-height:1.3;
+    font-family: 'Poppins', sans-serif; /* ← fuente legible */
+}
+</style>
+</head>
+<body>
+
+<audio id="music" src="musica.mp3" autoplay></audio>
+<canvas id="fireworks"></canvas>
+
+<!-- Pantalla inicial -->
+<div class="container" id="inicio">
+  <h1 id="invitation"></h1>
+  <p>Hola mi princesa ❤️</p>
+  <img src="foto.jpg.jpeg" alt="Nuestra foto" class="main-img">
+  <p>Antes de hacerte la pregunta… mirá esto 💌</p>
+  <div id="countdown">5</div>
+</div>
+
+<!-- Pantalla de pregunta -->
+<div class="container hidden" id="pregunta">
+  <h1>¿Aceptás ser mi San Valentín? 💘</h1>
+  <button onclick="acepto()">Sí, obvio mi amor 😍</button>
+  <br><br>
+  <button id="noBtn">No 😢</button>
+</div>
+
+<!-- Pantalla final -->
+<div class="container hidden" id="final">
+  <h1>Sabía que ibas a decir que sí 🥰</h1>
+  <img src="https://i.pinimg.com/1200x/85/55/9f/85559fcf23069832b0602701b1601259.jpg"
+       alt="Foto para Mili" class="hello-kitty">
+  <p>Gracias por hacer <strong>mi vida</strong> tan hermosa.</p>
+  <p>Te amo infinito <strong>mi vidaaa</strong> ❤️</p>
+  <div id="secretMsg"></div>
+</div>
+
+<script>
+// ===== Texto animado inicial =====
+const invitationText = "💌 Invitación Oficial 💌";
+const invitationElement = document.getElementById("invitation");
+let i = 0;
+function typeWriter() {
+    if(i < invitationText.length){
+        invitationElement.innerHTML += invitationText.charAt(i);
+        i++;
+        setTimeout(typeWriter, 100);
+    }
+}
+typeWriter();
+
+// ===== Countdown y música =====
+const music = document.getElementById("music");
+let time = 5; // ← 5 segundos
+const countdown = setInterval(()=>{
+    time--;
+    document.getElementById("countdown").innerText = time;
+    if(time==0){
+        clearInterval(countdown);
+        document.getElementById("inicio").classList.add("hidden");
+        document.getElementById("pregunta").classList.remove("hidden");
+        music.play();
+    }
+},1000);
+
+// ===== Botón "No" que se mueve =====
+const noBtn = document.getElementById("noBtn");
+noBtn.addEventListener("mouseover", ()=>{
+    noBtn.style.top = Math.random()*80 + "vh";
+    noBtn.style.left = Math.random()*80 + "vw";
+});
+
+// ===== Botón "Sí" =====
+function acepto(){
+    document.getElementById("pregunta").classList.add("hidden");
+    document.getElementById("final").classList.remove("hidden");
+    startFireworks();
+    showNextMessage();
+}
+
+// ===== Corazones y globos flotando =====
+function createHeartOrBalloon(){
+    const el = document.createElement('div');
+    if(Math.random()<0.6){
+        el.classList.add('heart');
+        el.innerHTML='❤️';
+    } else {
+        el.classList.add('balloon');
+        el.innerHTML='🎈';
+    }
+    el.style.left=Math.random()*100+'vw';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),6000);
+}
+setInterval(createHeartOrBalloon,300);
+
+// ===== Fuegos artificiales =====
+const canvas = document.getElementById('fireworks');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth; 
+canvas.height = window.innerHeight;
+function startFireworks(){
+    setInterval(()=>{
+        for(let i=0;i<60;i++){
+            ctx.beginPath();
+            ctx.arc(Math.random()*canvas.width, Math.random()*canvas.height, 2,0, Math.PI*2);
+            ctx.fillStyle="white"; ctx.fill();
+        }
+        setTimeout(()=>ctx.clearRect(0,0,canvas.width,canvas.height),200);
+    },300);
+}
+
+// ===== Mensajes animados letra por letra =====
+const messages = [
+  "Cada momento a tu lado es un tesoro que guardo en mi corazón 💖",
+  "Gracias por cada sonrisa, cada abrazo, y por hacer que cada momento a tu lado sea único e inolvidable ❤️",
+  "Me hacés sentir la persona más feliz del mundo 💖"
+];
+
+let msgIndex = 0;
+let charIndex = 0;
+const secretElement = document.getElementById("secretMsg");
+
+function showNextMessage(){
+    if(msgIndex < messages.length){
+        let msg = messages[msgIndex];
+        function typeLetter(){
+            if(charIndex < msg.length){
+                secretElement.innerHTML += msg.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeLetter, 80);
+            } else {
+                secretElement.innerHTML += "<br><br>";
+                charIndex = 0;
+                msgIndex++;
+                setTimeout(showNextMessage, 800);
+            }
+        }
+        typeLetter();
+    } else {
+        // Cuando terminan los mensajes, empiezan los besos flotando
+        startKisses();
+    }
+}
+
+// ===== Besos flotando después del último mensaje =====
+function startKisses(){
+    setInterval(()=>{
+        const kiss = document.createElement('div');
+        kiss.classList.add('heart'); // reutilizamos estilo de corazón
+        kiss.innerHTML = '💋';
+        kiss.style.left = Math.random()*100 + 'vw';
+        kiss.style.fontSize = (Math.random()*6+2) + 'vw'; // tamaño variable
+        document.body.appendChild(kiss);
+        setTimeout(()=>kiss.remove(),6000);
+    }, 300);
+}
+</script>
+
+</body>
+</html>
